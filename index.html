@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>CabbyDesk · Espace Chauffeur</title>
+
+<!-- ══ PWA META ══ -->
+<meta name="application-name" content="CabbyDesk">
+<meta name="description" content="Espace chauffeur VTC — courses, facturation et chiffre d'affaires">
+<meta name="theme-color" content="#0B0C10" id="theme-color-meta">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- ══ iOS SPECIFIC ══ -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CabbyDesk">
+
+<!-- ══ MANIFEST (inline via blob, no server needed) ══ -->
+<script>
+(function(){
+  const iconSvg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#12131A"/><rect x="256" y="0" width="256" height="512" rx="112" fill="#12131A"/><rect x="80" y="220" width="352" height="212" rx="36" fill="#1F2130"/><path d="M112 220V182C112 128 150 88 210 88h92c60 0 98 40 98 94v38" stroke="#4F8EF7" stroke-width="28" stroke-linecap="round" fill="none"/><rect x="108" y="264" width="72" height="48" rx="12" fill="#4F8EF7" opacity=".9"/><rect x="220" y="264" width="72" height="48" rx="12" fill="#4F8EF7" opacity=".9"/><rect x="332" y="264" width="72" height="48" rx="12" fill="#4F8EF7" opacity=".9"/><rect x="196" y="358" width="120" height="16" rx="8" fill="#2DD4A0" opacity=".6"/><circle cx="256" cy="390" r="18" fill="#2DD4A0" opacity=".8"/></svg>`;
+  const svgBlob=new Blob([iconSvg],{type:'image/svg+xml'});
+  const svgUrl=URL.createObjectURL(svgBlob);
+
+  const manifest={
+    name:'CabbyDesk · Espace Chauffeur',
+    short_name:'CabbyDesk',
+    description:'Espace chauffeur VTC — courses, facturation et CA',
+    start_url:'.',
+    display:'standalone',
+    orientation:'portrait',
+    background_color:'#0B0C10',
+    theme_color:'#0B0C10',
+    icons:[
+      {src:svgUrl,sizes:'512x512',type:'image/svg+xml',purpose:'any maskable'}
+    ]
+  };
+  const mBlob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+  const mUrl=URL.createObjectURL(mBlob);
+  const link=document.createElement('link');
+  link.rel='manifest'; link.href=mUrl;
+  document.head.appendChild(link);
+
+  // Apple touch icon (PNG canvas-generated 180x180)
+  const canvas=document.createElement('canvas');
+  canvas.width=180; canvas.height=180;
+  const ctx=canvas.getContext('2d');
+  // Background
+  ctx.fillStyle='#12131A';
+  roundRect(ctx,0,0,180,180,28);
+  ctx.fill();
+  // Blue accent right half
+  ctx.fillStyle='#1A1C30';
+  roundRect(ctx,90,0,90,180,28,true);
+  ctx.fill();
+  // Body of desk/building
+  ctx.fillStyle='#1F2130';
+  ctx.beginPath(); ctx.roundRect(22,76,136,82,12); ctx.fill();
+  // Arch top
+  ctx.strokeStyle='#4F8EF7'; ctx.lineWidth=10; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(38,76); ctx.lineTo(38,62);
+  ctx.arc(90,62,52,Math.PI,0); ctx.lineTo(142,76); ctx.stroke();
+  // 3 windows
+  [[32,96,38,20],[71,96,38,20],[110,96,38,20]].forEach(([x,y,w,h])=>{
+    ctx.fillStyle='rgba(79,142,247,0.88)';
+    ctx.beginPath(); ctx.roundRect(x,y,w,h,5); ctx.fill();
+  });
+  // Bottom bar (green accent)
+  ctx.fillStyle='rgba(45,212,160,0.7)';
+  ctx.beginPath(); ctx.roundRect(55,140,70,8,4); ctx.fill();
+  // Center dot
+  ctx.fillStyle='#2DD4A0';
+  ctx.beginPath(); ctx.arc(90,132,7,0,Math.PI*2); ctx.fill();
+
+  function roundRect(c,x,y,w,h,r,clip=false){
+    c.beginPath();
+    c.moveTo(x+r,y);
+    c.lineTo(x+w-r,y);
+    c.quadraticCurveTo(x+w,y,x+w,y+r);
+    c.lineTo(x+w,y+h-r);
+    c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    c.lineTo(x+r,y+h);
+    c.quadraticCurveTo(x,y+h,x,y+h-r);
+    c.lineTo(x,y+r);
+    c.quadraticCurveTo(x,y,x+r,y);
+    c.closePath();
+    if(clip) c.clip();
+  }
+
+  const appleLink=document.createElement('link');
+  appleLink.rel='apple-touch-icon';
+  appleLink.href=canvas.toDataURL('image/png');
+  document.head.appendChild(appleLink);
+
+  // Favicon
+  const favLink=document.createElement('link');
+  favLink.rel='icon'; favLink.type='image/svg+xml';
+  favLink.href=svgUrl;
+  document.head.appendChild(favLink);
+})();
+</script>
+
+<!-- ══ SPLASH SCREEN COLORS iOS ══ -->
+<style>
+  @media(prefers-color-scheme:dark){
+    meta[name="theme-color"]{ content:"#0B0C10"; }
+  }
+  @media(prefers-color-scheme:light){
+    meta[name="theme-color"]{ content:"#F2F3F7"; }
+  }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.6.0/jspdf.plugin.autotable.min.js"></script>
+<style>
+/* ══════════════════════════════════════════════
+   THEME TOKENS — dark (default) & light
+══════════════════════════════════════════════ */
+:root,[data-theme="dark"]{
+  --bg:       #0B0C10;
+  --bg2:      #12131A;
+  --surface:  #191B24;
+  --surf2:    #1F2130;
+  --bdr:      rgba(255,255,255,.07);
+  --bdr2:     rgba(255,255,255,.13);
+  --txt:      #E8EAF0;
+  --txt2:     #8A8FA8;
+  --txt3:     #50556A;
+  --shd:      rgba(0,0,0,.45);
+  --hbg:      rgba(11,12,16,.92);
+}
+[data-theme="light"]{
+  --bg:       #F2F3F7;
+  --bg2:      #FFFFFF;
+  --surface:  #FFFFFF;
+  --surf2:    #E8E9F0;
+  --bdr:      rgba(0,0,0,.08);
+  --bdr2:     rgba(0,0,0,.15);
+  --txt:      #1A1C28;
+  --txt2:     #5A5F7A;
+  --txt3:     #9CA0B8;
+  --shd:      rgba(0,0,0,.10);
+  --hbg:      rgba(242,243,247,.92);
+}
+/* shared accent */
+:root{
+  --accent:  #4F8EF7;
+  --acd:     rgba(79,142,247,.13);
+  --acg:     rgba(79,142,247,.28);
+  --green:   #2DD4A0;
+  --grd:     rgba(45,212,160,.13);
+  --red:     #F76E6E;
+  --rdd:     rgba(247,110,110,.12);
+  --amber:   #F7C04F;
+  --amd:     rgba(247,192,79,.14);
+  --purple:  #A78BFA;
+  --prd:     rgba(167,139,250,.13);
+  --r:16px; --r2:12px; --r3:8px;
+  --sidebar:248px;
+}
+
+/* ══ RESET ══ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;transition:background .25s,color .25s;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--surf2);border-radius:4px;}
+input[type=date],input[type=time]{color-scheme:inherit;}
+[data-theme="dark"] input[type=date],[data-theme="dark"] input[type=time]{color-scheme:dark;}
+[data-theme="light"] input[type=date],[data-theme="light"] input[type=time]{color-scheme:light;}
+
+/* ══ SHELL / LAYOUT ══ */
+.shell{padding-bottom:88px;min-height:100vh;}
+@media(min-width:900px){
+  .shell{display:flex;padding-bottom:0;}
+  .sidebar{display:flex!important;}
+  .tab-bar{display:none!important;}
+  .mob-hdr{display:none!important;}
+  .main-col{margin-left:var(--sidebar);flex:1;min-width:0;}
+  .dbar{display:flex!important;}
+}
+
+/* ══ SIDEBAR ══ */
+.sidebar{
+  display:none;position:fixed;top:0;left:0;bottom:0;width:var(--sidebar);
+  background:var(--bg2);border-right:1px solid var(--bdr);
+  flex-direction:column;padding:26px 14px;z-index:100;
+  transition:background .25s,border-color .25s;
+}
+.sb-logo{display:flex;align-items:center;gap:10px;padding:0 6px;margin-bottom:28px;}
+.logo-icon{width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent) 0%,#7B6EF7 100%);
+  display:flex;align-items:center;justify-content:center;font-size:16px;}
+.logo-txt{font-size:1.05rem;font-weight:700;letter-spacing:-.3px;}
+.logo-txt span{color:var(--accent);}
+.sb-nav{display:flex;flex-direction:column;gap:3px;flex:1;}
+.sb-item{
+  display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:var(--r3);
+  cursor:pointer;color:var(--txt2);font-size:.87rem;font-weight:500;transition:all .18s;
+}
+.sb-item:hover{background:var(--surf2);color:var(--txt);}
+.sb-item.active{background:var(--acd);color:var(--accent);font-weight:600;}
+.sb-icon{font-size:1rem;width:20px;text-align:center;}
+.sb-sep{height:1px;background:var(--bdr);margin:10px 6px;}
+.sb-foot{padding:13px;background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--r2);}
+.sf-name{font-size:.83rem;font-weight:600;}
+.sf-sub{font-size:.69rem;color:var(--txt3);margin-top:2px;}
+
+/* ══ MOBILE HEADER ══ */
+.mob-hdr{
+  position:sticky;top:0;z-index:50;padding:16px 18px 11px;
+  background:var(--hbg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--bdr);
+  display:flex;justify-content:space-between;align-items:center;
+  transition:background .25s,border-color .25s;
+}
+.mh-logo{display:flex;align-items:center;gap:9px;}
+.mh-right{display:flex;align-items:center;gap:10px;}
+.date-chip{font-family:'DM Mono',monospace;font-size:.67rem;font-weight:500;
+  color:var(--txt2);background:var(--surf2);padding:5px 11px;border-radius:20px;border:1px solid var(--bdr);}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);}
+
+/* Theme toggle button */
+.theme-btn{
+  width:32px;height:32px;border-radius:50%;border:1px solid var(--bdr);
+  background:var(--surf2);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:.95rem;transition:all .2s;flex-shrink:0;
+}
+.theme-btn:hover{background:var(--surface);}
+
+/* ══ DESKTOP TOP BAR ══ */
+.dbar{display:none;padding:28px 36px 0;justify-content:space-between;align-items:flex-end;margin-bottom:26px;}
+.page-title{font-size:1.5rem;font-weight:700;letter-spacing:-.4px;}
+.page-sub{font-size:.82rem;color:var(--txt3);margin-top:4px;}
+.dbar-right{display:flex;align-items:center;gap:10px;}
+
+/* ══ VIEWS ══ */
+.view{display:none;animation:fadeUp .25s ease;}
+.view.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.vinner{padding:18px;max-width:720px;margin:0 auto;}
+@media(min-width:600px){.vinner{padding:22px 26px;}}
+@media(min-width:900px){.vinner{padding:0 36px 48px;max-width:940px;}}
+
+/* ══ GRIDS ══ */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;}
+@media(max-width:420px){.g3{grid-template-columns:1fr 1fr;}.g3 >:last-child{grid-column:span 2;}}
+
+/* ══ CARDS ══ */
+.card{background:var(--surface);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;margin-bottom:13px;transition:background .25s,border-color .25s;}
+.card.accent-card{border-color:rgba(79,142,247,.3);background:linear-gradient(135deg,rgba(79,142,247,.06) 0%,var(--surface) 60%);}
+.card.amber-card{border-color:rgba(247,192,79,.3);background:linear-gradient(135deg,rgba(247,192,79,.05) 0%,var(--surface) 60%);}
+
+/* ══ SECTION LABEL ══ */
+.slabel{font-size:.61rem;font-weight:700;text-transform:uppercase;letter-spacing:1.1px;color:var(--txt3);margin-bottom:9px;padding-left:2px;}
+
+/* ══ FORM ══ */
+.fg{margin-bottom:12px;}
+label{display:block;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);margin-bottom:6px;}
+input,textarea,select{
+  width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r2);
+  padding:12px 13px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:16px;
+  outline:none;appearance:none;transition:border-color .18s,box-shadow .18s,background .25s;
+}
+input::placeholder,textarea::placeholder{color:var(--txt3);font-size:.87rem;}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--acd);}
+textarea{height:80px;resize:none;line-height:1.5;font-size:.9rem;}
+select option{background:var(--bg2);color:var(--txt);}
+.iw{position:relative;}
+.ii{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--txt3);font-size:.88rem;pointer-events:none;}
+.ii~input,.ii~select{padding-left:36px;}
+
+/* ══ ROUTE BLOCK ══ */
+.route-blk{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r2);overflow:hidden;}
+.rrow{display:flex;align-items:center;gap:11px;padding:11px 13px;}
+.rrow+.rrow{border-top:1px solid var(--bdr);}
+.rdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.rd-a{background:var(--green);box-shadow:0 0 5px var(--green);}
+.rd-b{background:var(--red);box-shadow:0 0 5px var(--red);}
+.rrow input{background:transparent;border:none;border-radius:0;padding:0;box-shadow:none!important;font-size:.92rem;flex:1;color:var(--txt);}
+
+/* ══ PRICE ROW ══ */
+.price-row{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r2);padding:12px 15px;transition:border-color .18s,box-shadow .18s;}
+.price-row:focus-within{border-color:var(--green);box-shadow:0 0 0 3px var(--grd);}
+.ppfx{font-size:.76rem;font-weight:600;color:var(--txt3);flex-shrink:0;}
+.price-row input{background:transparent;border:none;border-radius:0;padding:0;box-shadow:none!important;font-family:'DM Mono',monospace;font-size:1.32rem;font-weight:700;color:var(--green);flex:1;text-align:right;}
+.psfx{font-size:1.05rem;font-weight:700;color:var(--green);flex-shrink:0;}
+
+/* ══ BUTTONS ══ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;border-radius:var(--r2);
+  padding:13px 18px;transition:all .18s;width:100%;}
+.btn:active{transform:scale(.97);}
+.btn-p{background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(79,142,247,.28);}
+.btn-p:hover{filter:brightness(1.1);}
+.btn-s{background:var(--green);color:#0B0C10;box-shadow:0 4px 14px rgba(45,212,160,.22);}
+.btn-s:hover{filter:brightness(1.08);}
+.btn-g{background:var(--surf2);color:var(--txt2);border:1px solid var(--bdr);}
+.btn-g:hover{background:var(--surface);color:var(--txt);}
+.btn-d{background:var(--rdd);color:var(--red);border:1px solid rgba(247,110,110,.2);}
+.btn-a{background:var(--amd);color:var(--amber);border:1px solid rgba(247,192,79,.25);}
+.btn-sm{padding:7px 12px;font-size:.76rem;border-radius:var(--r3);width:auto;}
+.btn-ic{padding:9px 11px;width:auto;border-radius:var(--r3);}
+.brow{display:flex;gap:9px;}
+
+/* ══ STATS ROW ══ */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:16px;}
+@media(max-width:380px){.stats-row{grid-template-columns:1fr 1fr;}.stats-row .sbox:last-child{grid-column:span 2;}}
+.sbox{background:var(--surface);border:1px solid var(--bdr);border-radius:var(--r2);padding:13px 10px;text-align:center;transition:background .25s;}
+.sval{font-family:'DM Mono',monospace;font-size:1.18rem;font-weight:700;line-height:1;}
+.slbl{font-size:.59rem;color:var(--txt3);margin-top:4px;text-transform:uppercase;letter-spacing:.6px;}
+
+/* ══ SEARCH ══ */
+.sw{position:relative;margin-bottom:13px;}
+.sw .ii{top:50%;}
+.sw input{padding-left:36px;background:var(--surface);font-size:.9rem;}
+
+/* ══ HISTORY LIST ══ */
+.hlist{display:flex;flex-direction:column;gap:9px;}
+.hitem{background:var(--surface);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;transition:border-color .2s,background .25s;}
+.hitem:hover{border-color:var(--bdr2);}
+.htop{display:flex;justify-content:space-between;align-items:flex-start;padding:15px;gap:11px;cursor:pointer;}
+.hleft{flex:1;min-width:0;}
+.hname{font-weight:600;font-size:.93rem;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hphone{font-size:.71rem;color:var(--txt3);margin-top:2px;font-family:'DM Mono',monospace;}
+.hmeta{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:5px;}
+.hdate{font-size:.68rem;font-weight:500;color:var(--txt3);font-family:'DM Mono',monospace;}
+.hroute{font-size:.7rem;color:var(--txt3);display:flex;align-items:center;gap:4px;margin-top:4px;}
+.hroute span{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;}
+.hright{text-align:right;flex-shrink:0;}
+.hprice{font-family:'DM Mono',monospace;font-size:1.02rem;font-weight:700;color:var(--green);}
+.hnum{font-size:.62rem;color:var(--txt3);margin-top:2px;font-family:'DM Mono',monospace;}
+
+/* Accordeon detail */
+.hdetail{display:none;padding:0 15px 15px;}
+.hdetail.open{display:block;animation:fadeUp .2s ease;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+@media(max-width:420px){.detail-grid{grid-template-columns:1fr;}}
+.dfield{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r3);padding:10px 12px;}
+.dfield-lbl{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);margin-bottom:3px;}
+.dfield-val{font-size:.86rem;font-weight:500;color:var(--txt);}
+.dfield-val.green{color:var(--green);font-family:'DM Mono',monospace;font-weight:700;}
+
+.hactions{display:none;gap:8px;padding:10px 14px;border-top:1px solid var(--bdr);background:var(--bg2);}
+.hactions.open{display:flex;}
+.haccordion-btn{
+  width:100%;text-align:left;background:var(--surf2);border:1px solid var(--bdr);
+  border-radius:var(--r3);padding:9px 13px;cursor:pointer;font-family:'DM Sans',sans-serif;
+  font-size:.78rem;font-weight:600;color:var(--txt2);transition:all .18s;
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;
+}
+.haccordion-btn:hover{background:var(--surface);color:var(--txt);}
+.acc-arrow{transition:transform .2s;}
+.hdetail.open ~ .haccordion-btn .acc-arrow,
+.acc-arrow.open{transform:rotate(180deg);}
+
+/* ══ EMPTY ══ */
+.empty{text-align:center;padding:55px 20px;color:var(--txt3);}
+.empty .ei{font-size:2.2rem;margin-bottom:10px;opacity:.4;}
+.empty p{font-size:.83rem;}
+
+/* ══ PROFILE FIELD BLOCKS ══ */
+.pbanner{display:flex;align-items:center;gap:15px;background:linear-gradient(135deg,var(--surface) 0%,var(--bg2) 100%);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;margin-bottom:18px;transition:background .25s;}
+.avatar{width:52px;height:52px;flex-shrink:0;border-radius:13px;background:linear-gradient(135deg,var(--accent) 0%,#7B6EF7 100%);display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
+.bn-name{font-size:.97rem;font-weight:700;}
+.bn-sub{font-size:.72rem;color:var(--txt3);margin-top:2px;}
+.fblock{background:var(--surface);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin-bottom:13px;transition:background .25s;}
+.frow{display:flex;align-items:center;gap:11px;padding:12px 15px;}
+.frow+.frow{border-top:1px solid var(--bdr);}
+.fi{font-size:.95rem;width:21px;text-align:center;flex-shrink:0;}
+.finn{flex:1;min-width:0;}
+.finn label{margin-bottom:3px;}
+.finn input,.finn select{background:transparent;border:none;border-radius:0;padding:0;font-size:.91rem;box-shadow:none!important;color:var(--txt);}
+
+/* ══ CA MODULE ══ */
+.ca-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.ca-date-nav{display:flex;align-items:center;gap:10px;}
+.ca-nav-btn{width:32px;height:32px;border-radius:var(--r3);background:var(--surf2);border:1px solid var(--bdr);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--txt2);transition:all .18s;}
+.ca-nav-btn:hover{background:var(--surface);color:var(--txt);}
+.ca-date-label{font-size:.88rem;font-weight:600;color:var(--txt);min-width:110px;text-align:center;}
+.ca-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:14px;}
+.ca-entry{background:var(--surface);border:1px solid var(--bdr);border-radius:var(--r2);overflow:hidden;transition:background .25s;}
+.ca-row{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;gap:10px;}
+.ca-row+.ca-row{border-top:1px solid var(--bdr);}
+.ca-entry-left{flex:1;min-width:0;}
+.ca-etime{font-size:.68rem;font-family:'DM Mono',monospace;color:var(--txt3);}
+.ca-edesc{font-size:.88rem;font-weight:500;color:var(--txt);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ca-entry-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.ca-eamt{font-family:'DM Mono',monospace;font-size:1rem;font-weight:700;color:var(--green);}
+.ca-tag{font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:2px 7px;border-radius:5px;}
+.ca-tag-c{background:var(--acd);color:var(--accent);}
+.ca-tag-s{background:var(--grd);color:var(--green);}
+.ca-tag-r{background:var(--rdd);color:var(--red);}
+
+/* ══ MODAL ══ */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(5px);z-index:200;display:none;align-items:flex-end;justify-content:center;padding:20px;}
+.overlay.open{display:flex;}
+@media(min-width:600px){.overlay{align-items:center;}}
+.modal{background:var(--surface);border:1px solid var(--bdr2);border-radius:var(--r);padding:22px;width:100%;max-width:420px;animation:su .22s ease;transition:background .25s;}
+@keyframes su{from{transform:translateY(16px);opacity:0}to{opacity:1;transform:none}}
+.modal h3{font-size:.97rem;margin-bottom:8px;}
+.modal p{font-size:.83rem;color:var(--txt2);line-height:1.5;margin-bottom:18px;}
+.mrow{display:flex;gap:9px;}
+
+/* Edit modal large */
+.modal-lg{max-width:560px;max-height:90vh;overflow-y:auto;}
+.modal-lg .fg{margin-bottom:11px;}
+
+/* ══ TAB BAR ══ */
+.tab-bar{position:fixed;bottom:0;left:0;right:0;background:var(--hbg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--bdr);display:flex;padding:8px 8px calc(8px + env(safe-area-inset-bottom));z-index:100;transition:background .25s,border-color .25s;}
+.titem{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 3px;border-radius:var(--r3);cursor:pointer;color:var(--txt3);font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;transition:color .18s;}
+.titem.active{color:var(--accent);}
+.twrap{width:34px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:var(--r3);font-size:1rem;transition:background .18s;}
+.titem.active .twrap{background:var(--acd);}
+
+/* ══ TOAST ══ */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:30px;font-size:.83rem;font-weight:600;box-shadow:0 8px 24px var(--shd);transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap;backdrop-filter:blur(10px);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.tok{background:rgba(45,212,160,.15);color:var(--green);border:1px solid rgba(45,212,160,.3);}
+.terr{background:rgba(247,110,110,.14);color:var(--red);border:1px solid rgba(247,110,110,.28);}
+.tinfo{background:rgba(79,142,247,.14);color:var(--accent);border:1px solid rgba(79,142,247,.28);}
+
+/* ══ DIVIDER ══ */
+.div{display:flex;align-items:center;gap:9px;margin:14px 0;}
+.div::before,.div::after{content:'';flex:1;height:1px;background:var(--bdr);}
+.div span{font-size:.62rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px;white-space:nowrap;}
+
+/* ══ MAGIC ══ */
+.magiclabel{display:flex;align-items:center;font-size:.81rem;font-weight:600;color:var(--accent);margin-bottom:11px;}
+.pdot{width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:8px;animation:pa 2s infinite;}
+@keyframes pa{0%,100%{box-shadow:0 0 0 0 var(--acg)}50%{box-shadow:0 0 0 5px transparent}}
+.mhint{font-size:.68rem;color:var(--txt3);margin-left:auto;}
+
+/* ══ EDIT INLINE BADGE ══ */
+.editing-badge{display:inline-flex;align-items:center;gap:5px;font-size:.7rem;font-weight:600;color:var(--amber);background:var(--amd);border:1px solid rgba(247,192,79,.3);padding:3px 9px;border-radius:6px;margin-left:8px;}
+
+/* ══ REF NUMBER ══ */
+.ref-badge{font-family:'DM Mono',monospace;font-size:.63rem;font-weight:500;color:var(--txt3);background:var(--surf2);padding:2px 8px;border-radius:5px;}
+
+/* ══ EXPORT BTN ══ */
+.export-bar{display:flex;gap:8px;margin-bottom:14px;}
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast tok"><span id="ti">✓</span> <span id="tm">OK</span></div>
+
+<!-- CONFIRM MODAL -->
+<div class="overlay" id="ov-confirm">
+  <div class="modal">
+    <h3 id="cm-t">Confirmer</h3><p id="cm-b">Êtes-vous sûr ?</p>
+    <div class="mrow">
+      <button class="btn btn-g" style="flex:1" onclick="closeAll()">Annuler</button>
+      <button class="btn btn-d" style="flex:1" id="cm-ok">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT COURSE MODAL -->
+<div class="overlay" id="ov-edit">
+  <div class="modal modal-lg">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3>✏️ Modifier la course <span id="edit-ref" class="ref-badge"></span></h3>
+      <button class="btn btn-g btn-ic btn-sm" onclick="closeAll()">✕</button>
+    </div>
+    <div class="g2 fg">
+      <div><label>Prénom</label><input type="text" id="e-fn" placeholder="Jean"></div>
+      <div><label>Nom</label><input type="text" id="e-ln" placeholder="Dupont"></div>
+    </div>
+    <div class="fg"><label>Téléphone</label><input type="tel" id="e-tel" placeholder="+33 6 00 00 00 00"></div>
+    <div class="fg"><label>Email</label><input type="email" id="e-email" placeholder="client@exemple.fr"></div>
+    <div class="g2 fg">
+      <div><label>Date</label><input type="date" id="e-date"></div>
+      <div><label>Heure</label><input type="time" id="e-time"></div>
+    </div>
+    <div class="fg"><label>Départ</label><input type="text" id="e-from" placeholder="Adresse de départ"></div>
+    <div class="fg"><label>Arrivée</label><input type="text" id="e-to" placeholder="Adresse d'arrivée"></div>
+    <div class="g2 fg">
+      <div><label>Passagers</label><select id="e-pax"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7+</option></select></div>
+      <div><label>Véhicule</label><select id="e-vtype"><option>Berline</option><option>Van / Minibus</option><option>Berline Premium</option><option>SUV</option></select></div>
+    </div>
+    <div class="fg"><label>Mode de règlement (optionnel)</label><input type="text" id="e-pay" placeholder="Espèces, carte, virement…"></div>
+    <div class="fg"><label>Notes</label><textarea id="e-notes" style="height:64px;" placeholder="Bagages, instructions…"></textarea></div>
+    <div class="fg" style="margin-bottom:16px;"><label>Prix TTC (€)</label>
+      <div class="price-row"><span class="ppfx">TTC</span><input type="number" id="e-price" placeholder="0.00" step="0.01" min="0"><span class="psfx">€</span></div>
+    </div>
+    <div class="brow">
+      <button class="btn btn-g" style="flex:1" onclick="closeAll()">Annuler</button>
+      <button class="btn btn-s" style="flex:1" onclick="saveEdit()">💾 Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CA ENTRY MODAL -->
+<div class="overlay" id="ov-ca">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 id="ca-modal-title">➕ Ajouter une entrée</h3>
+      <button class="btn btn-g btn-ic btn-sm" onclick="closeAll()">✕</button>
+    </div>
+    <div class="g2 fg">
+      <div><label>Date</label><input type="date" id="ca-date"></div>
+      <div><label>Heure</label><input type="time" id="ca-time"></div>
+    </div>
+    <div class="fg"><label>Description</label><input type="text" id="ca-desc" placeholder="Course aéroport, carburant…"></div>
+    <div class="fg">
+      <label>Catégorie</label>
+      <select id="ca-cat">
+        <option value="course">🚗 Course VTC</option>
+        <option value="autre">📦 Autre recette</option>
+        <option value="charge">💸 Charge / Dépense</option>
+      </select>
+    </div>
+    <div class="fg" style="margin-bottom:16px;"><label>Montant (€)</label>
+      <div class="price-row"><span class="ppfx" id="ca-pfx">+</span><input type="number" id="ca-amt" placeholder="0.00" step="0.01" min="0"><span class="psfx">€</span></div>
+    </div>
+    <div class="brow">
+      <button class="btn btn-g" style="flex:1" onclick="closeAll()">Annuler</button>
+      <button class="btn btn-p" style="flex:1" id="ca-save-btn" onclick="saveCAEntry()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- SIDEBAR desktop -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="logo-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="8" width="18" height="10" rx="2.5" fill="white" fill-opacity="0.18"/><path d="M4 8V6.5C4 4.567 5.567 3 7.5 3h5C14.433 3 16 4.567 16 6.5V8" stroke="white" stroke-width="1.6" stroke-linecap="round"/><rect x="4" y="10" width="3" height="2" rx="0.6" fill="white"/><rect x="8.5" y="10" width="3" height="2" rx="0.6" fill="white"/><rect x="13" y="10" width="3" height="2" rx="0.6" fill="white"/><circle cx="10" cy="15" r="1.2" fill="white" fill-opacity="0.7"/><path d="M7.5 15h5" stroke="white" stroke-width="1.4" stroke-linecap="round" opacity="0.4"/></svg></div>
+      <div class="logo-txt">Cabby<span>Desk</span></div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-item active" id="si-create"  onclick="sw('create',this,'si')"><span class="sb-icon">＋</span>Nouvelle course</div>
+      <div class="sb-item"        id="si-history" onclick="sw('history',this,'si')"><span class="sb-icon">📂</span>Courses</div>
+      <div class="sb-item"        id="si-ca"      onclick="sw('ca',this,'si')"><span class="sb-icon">📊</span>Chiffre d'affaires</div>
+      <div class="sb-sep"></div>
+      <div class="sb-item"        id="si-profile" onclick="sw('profile',this,'si')"><span class="sb-icon">⚙️</span>Profil</div>
+    </nav>
+    <div style="margin-bottom:12px;">
+      <button class="btn btn-g" style="width:100%;font-size:.82rem;padding:10px;" onclick="toggleTheme()">
+        <span id="sb-theme-ico">☀️</span> <span id="sb-theme-lbl">Mode jour</span>
+      </button>
+    </div>
+    <div class="sb-foot">
+      <div class="sf-name" id="sf-name">Mon entreprise</div>
+      <div class="sf-sub"  id="sf-sub">Complétez votre profil</div>
+    </div>
+  </aside>
+
+  <div class="main-col">
+
+    <!-- Mobile header -->
+    <header class="mob-hdr">
+      <div class="mh-logo">
+        <div class="logo-icon" style="width:30px;height:30px;font-size:14px;"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="8" width="18" height="10" rx="2.5" fill="white" fill-opacity="0.18"/><path d="M4 8V6.5C4 4.567 5.567 3 7.5 3h5C14.433 3 16 4.567 16 6.5V8" stroke="white" stroke-width="1.6" stroke-linecap="round"/><rect x="4" y="10" width="3" height="2" rx="0.6" fill="white"/><rect x="8.5" y="10" width="3" height="2" rx="0.6" fill="white"/><rect x="13" y="10" width="3" height="2" rx="0.6" fill="white"/><circle cx="10" cy="15" r="1.2" fill="white" fill-opacity="0.7"/><path d="M7.5 15h5" stroke="white" stroke-width="1.4" stroke-linecap="round" opacity="0.4"/></svg></div>
+        <div class="logo-txt" style="font-size:.96rem;">Cabby<span>Desk</span></div>
+      </div>
+      <div class="mh-right">
+        <div class="date-chip" id="dchip">--</div>
+        <button class="theme-btn" onclick="toggleTheme()" id="mob-theme-btn">☀️</button>
+        <div class="live-dot"></div>
+      </div>
+    </header>
+
+    <div class="dbar" id="dbar"></div>
+
+    <!-- ═══ VIEW : NOUVELLE COURSE ═══ -->
+    <main id="view-create" class="view active">
+      <div class="vinner">
+
+        <!-- Magic import -->
+        <div class="card accent-card">
+          <div class="magiclabel"><div class="pdot"></div>Import automatique <span class="mhint">WhatsApp · SMS · Email · Appli</span></div>
+          <div class="fg" style="margin-bottom:11px;">
+            <textarea id="magic-input" placeholder="Collez ici votre message de réservation… Le système détecte automatiquement : nom, téléphone, adresses, date, heure, prix."></textarea>
+          </div>
+          <button class="btn btn-p" onclick="parseMagic()">✦ Analyser le message</button>
+        </div>
+
+        <div id="edit-banner" style="display:none;" class="card amber-card" style="margin-bottom:13px;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:.85rem;font-weight:600;color:var(--amber);">
+            ✏️ Mode édition — <span id="edit-banner-ref" class="ref-badge"></span>
+            <button class="btn btn-g btn-sm" style="margin-left:auto;" onclick="cancelEdit()">Annuler l'édition</button>
+          </div>
+        </div>
+
+        <div class="div"><span>ou renseigner manuellement</span></div>
+
+        <p class="slabel">Informations client</p>
+        <div class="card">
+          <div class="g2 fg">
+            <div><label>Prénom</label><div class="iw"><span class="ii">👤</span><input type="text" id="c-fn" placeholder="Jean"></div></div>
+            <div><label>Nom</label><input type="text" id="c-ln" placeholder="Dupont"></div>
+          </div>
+          <div class="fg"><label>Téléphone</label><div class="iw"><span class="ii">📱</span><input type="tel" id="c-tel" placeholder="+33 6 00 00 00 00"></div></div>
+          <div class="fg" style="margin-bottom:0;"><label>Email (optionnel)</label><div class="iw"><span class="ii">✉️</span><input type="email" id="c-email" placeholder="client@exemple.fr"></div></div>
+        </div>
+
+        <p class="slabel">Détails de la course</p>
+        <div class="card">
+          <div class="g2 fg">
+            <div><label>Date</label><input type="date" id="c-date"></div>
+            <div><label>Heure</label><input type="time" id="c-time"></div>
+          </div>
+          <div class="fg"><label>Trajet</label>
+            <div class="route-blk">
+              <div class="rrow"><div class="rdot rd-a"></div><input type="text" id="c-from" placeholder="Adresse de départ"></div>
+              <div class="rrow"><div class="rdot rd-b"></div><input type="text" id="c-to"   placeholder="Adresse d'arrivée"></div>
+            </div>
+          </div>
+          <div class="g2 fg">
+            <div><label>Passagers</label><div class="iw"><span class="ii">🧍</span><select id="c-pax"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7+</option></select></div></div>
+            <div><label>Véhicule</label><div class="iw"><span class="ii">🚗</span><select id="c-vtype"><option>Berline</option><option>Van / Minibus</option><option>Berline Premium</option><option>SUV</option></select></div></div>
+          </div>
+          <div class="fg"><label>Mode de règlement (renseigné après la course)</label><div class="iw"><span class="ii">💳</span><input type="text" id="c-pay" placeholder="Espèces, CB, virement… (optionnel)"></div></div>
+          <div class="fg"><label>Notes internes (optionnel)</label><textarea id="c-notes" placeholder="Bagages, instructions spéciales…" style="height:66px;"></textarea></div>
+          <div class="fg" style="margin-bottom:0;"><label>Prix TTC (€)</label>
+            <div class="price-row"><span class="ppfx">TTC</span><input type="number" id="c-price" placeholder="0.00" step="0.01" min="0"><span class="psfx">€</span></div>
+          </div>
+        </div>
+
+        <div class="brow">
+          <button class="btn btn-g btn-ic" onclick="resetForm()" title="Réinitialiser" style="flex-shrink:0;">↺</button>
+          <button class="btn btn-s" style="flex:1" id="save-btn" onclick="saveAndGen()">Enregistrer & générer le bon</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- ═══ VIEW : HISTORIQUE ═══ -->
+    <main id="view-history" class="view">
+      <div class="vinner">
+        <div class="stats-row" id="stats-row"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;">
+          <div style="font-size:.98rem;font-weight:700;">Mes courses</div>
+          <button class="btn btn-d btn-sm" onclick="confClear()">Tout effacer</button>
+        </div>
+        <div class="sw"><span class="ii" style="top:50%;">🔍</span><input type="text" id="srch" placeholder="Nom, téléphone, ville, référence…" oninput="renderHist()"></div>
+        <div class="hlist" id="hlist"></div>
+      </div>
+    </main>
+
+    <!-- ═══ VIEW : CHIFFRE D'AFFAIRES ═══ -->
+    <main id="view-ca" class="view">
+      <div class="vinner">
+
+        <div class="ca-header">
+          <div class="ca-date-nav">
+            <button class="ca-nav-btn" onclick="caNavDay(-1)">‹</button>
+            <div class="ca-date-label" id="ca-date-lbl">Aujourd'hui</div>
+            <button class="ca-nav-btn" onclick="caNavDay(1)">›</button>
+          </div>
+          <button class="btn btn-p btn-sm" onclick="openCAModal()">+ Ajouter</button>
+        </div>
+
+        <div class="ca-summary" id="ca-summary"></div>
+
+        <div class="export-bar">
+          <button class="btn btn-g btn-sm" style="flex:1" onclick="exportCACSV()">⬇ Export CSV</button>
+          <button class="btn btn-g btn-sm" style="flex:1" onclick="exportCAPDF()">📄 Export PDF</button>
+        </div>
+
+        <div id="ca-list"></div>
+
+      </div>
+    </main>
+
+    <!-- ═══ VIEW : PROFIL ═══ -->
+    <main id="view-profile" class="view">
+      <div class="vinner">
+        <div class="pbanner">
+          <div class="avatar">🧑‍✈️</div>
+          <div><div class="bn-name" id="bn-name">Mon entreprise</div><div class="bn-sub" id="bn-sub">Complétez votre profil</div></div>
+        </div>
+
+        <p class="slabel">Identité du chauffeur</p>
+        <div class="fblock">
+          <div class="frow"><span class="fi">👤</span><div class="finn"><label>Prénom & Nom</label><input type="text" id="p-dn" placeholder="Jean Dupont"></div></div>
+          <div class="frow"><span class="fi">📱</span><div class="finn"><label>Téléphone professionnel</label><input type="tel" id="p-tel" placeholder="+33 6 00 00 00 00"></div></div>
+          <div class="frow"><span class="fi">✉️</span><div class="finn"><label>Email professionnel</label><input type="email" id="p-email" placeholder="contact@monvtc.fr"></div></div>
+        </div>
+
+        <p class="slabel">Informations légales</p>
+        <div class="fblock">
+          <div class="frow"><span class="fi">🏢</span><div class="finn"><label>Raison sociale</label><input type="text" id="p-name" placeholder="VTC Excellence Paris"></div></div>
+          <div class="frow"><span class="fi">📋</span><div class="finn"><label>Numéro SIRET</label><input type="text" id="p-siret" placeholder="000 000 000 00000" maxlength="17"></div></div>
+          <div class="frow"><span class="fi">🪪</span><div class="finn"><label>Licence VTC</label><input type="text" id="p-vtc" placeholder="EVTC0123456"></div></div>
+          <div class="frow"><span class="fi">📍</span><div class="finn"><label>Adresse de facturation</label><input type="text" id="p-addr" placeholder="12 rue de la Paix, 75001 Paris"></div></div>
+        </div>
+
+        <p class="slabel">Véhicule</p>
+        <div class="fblock">
+          <div class="frow"><span class="fi">🚗</span><div class="finn"><label>Marque & Modèle</label><input type="text" id="p-veh" placeholder="Mercedes Classe E"></div></div>
+          <div class="frow"><span class="fi">🔢</span><div class="finn"><label>Immatriculation</label><input type="text" id="p-plate" placeholder="AB-123-CD"></div></div>
+        </div>
+
+        <p class="slabel">Paiement & Fiscal</p>
+        <div class="fblock" style="margin-bottom:18px;">
+          <div class="frow"><span class="fi">🏦</span><div class="finn"><label>IBAN (affiché sur les factures)</label><input type="text" id="p-iban" placeholder="FR76 0000 0000 0000 0000 0000 000"></div></div>
+          <div class="frow"><span class="fi">🏷️</span><div class="finn"><label>Régime TVA</label><select id="p-tva"><option value="10">TVA 10 % (standard VTC)</option><option value="0">Sans TVA (auto-entrepreneur)</option><option value="20">TVA 20 %</option></select></div></div>
+          <div class="frow"><span class="fi">📑</span><div class="finn"><label>Numéro de facture (prochain)</label><input type="number" id="p-nextinv" placeholder="1" min="1"></div></div>
+        </div>
+
+        <button class="btn btn-p" onclick="saveProfile()">Sauvegarder le profil</button>
+        <div style="margin-top:10px;"><button class="btn btn-d" onclick="confWipe()">⚠️ Réinitialiser toutes les données</button></div>
+      </div>
+    </main>
+
+  </div><!-- /main-col -->
+</div><!-- /shell -->
+
+<!-- Tab bar mobile -->
+<nav class="tab-bar">
+  <div class="titem active" id="tab-create"  onclick="sw('create',this,'tab')"><div class="twrap">＋</div><span>Nouveau</span></div>
+  <div class="titem"        id="tab-history" onclick="sw('history',this,'tab')"><div class="twrap">📂</div><span>Courses</span></div>
+  <div class="titem"        id="tab-ca"      onclick="sw('ca',this,'tab')"><div class="twrap">📊</div><span>CA</span></div>
+  <div class="titem"        id="tab-profile" onclick="sw('profile',this,'tab')"><div class="twrap">⚙️</div><span>Profil</span></div>
+</nav>
+
+<script>
+/* ══════════════════════════════════════
+   UTILS
+══════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+const gv = id => ($( id)||{}).value||'';
+const sv = (id,v)=>{ const e=$(id); if(e) e.value=v||''; };
+const ls = (k,d)=>localStorage.setItem(k,JSON.stringify(d));
+const gl = k=>{ try{return JSON.parse(localStorage.getItem(k));}catch{return null;} };
+const pad = n=>String(n).padStart(2,'0');
+const fmtDate = iso => iso ? iso.split('-').reverse().join('/') : '--';
+const fmtAmt  = n => parseFloat(n||0).toFixed(2);
+
+/* ══ COUNTERS ══ */
+function nextJobNum(){
+  let n = parseInt(gl('vtc_job_counter')||'0')+1;
+  ls('vtc_job_counter', n); return n;
+}
+function nextInvNum(){
+  const p = gl('vtcp')||{};
+  let n = parseInt(p.nextinv||'1');
+  p.nextinv = n+1; ls('vtcp',p);
+  return n;
+}
+
+/* ══════════════════════════════════════
+   THEME
+══════════════════════════════════════ */
+let darkMode = gl('vtc_theme') !== 'light';
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+  const ico = darkMode ? '☀️' : '🌙';
+  const lbl = darkMode ? 'Mode jour' : 'Mode nuit';
+  $('mob-theme-btn').textContent = ico;
+  const sb = $('sb-theme-ico'); if(sb) sb.textContent = ico;
+  const sl = $('sb-theme-lbl'); if(sl) sl.textContent = lbl;
+  ls('vtc_theme', darkMode ? 'dark' : 'light');
+}
+function toggleTheme(){ darkMode = !darkMode; applyTheme(); }
+applyTheme();
+
+/* ══ INIT ══ */
+const NOW = new Date();
+$('dchip').innerText = NOW.toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'short'});
+
+const DTITLES = {
+  create:  {t:'Nouvelle course',        s:'Enregistrer et générer un bon de commande'},
+  history: {t:'Mes courses',            s:'Historique, édition et facturation'},
+  ca:      {t:'Chiffre d\'affaires',    s:'Saisie journalière, suivi et export'},
+  profile: {t:'Profil chauffeur',       s:'Informations légales, véhicule et paiement'}
+};
+function setDbar(id){
+  const d=DTITLES[id];
+  $('dbar').innerHTML=`<div><div class="page-title">${d.t}</div><div class="page-sub">${d.s}</div></div>
+    <div class="dbar-right"><div class="date-chip">${NOW.toLocaleDateString('fr-FR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})}</div></div>`;
+}
+setDbar('create');
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+function toast(msg,type='ok'){
+  const t=$('toast');
+  t.className='toast '+(type==='ok'?'tok':type==='err'?'terr':'tinfo');
+  $('ti').textContent=type==='ok'?'✓':type==='err'?'✕':'ℹ';
+  $('tm').textContent=msg;
+  t.classList.add('show');
+  clearTimeout(t._to);
+  t._to=setTimeout(()=>t.classList.remove('show'),3400);
+}
+
+/* ══════════════════════════════════════
+   MODALS
+══════════════════════════════════════ */
+function closeAll(){
+  ['ov-confirm','ov-edit','ov-ca'].forEach(id=>$(id).classList.remove('open'));
+}
+function showConfirm(title,body,cb){
+  $('cm-t').textContent=title; $('cm-b').textContent=body;
+  $('ov-confirm').classList.add('open');
+  $('cm-ok').onclick=()=>{closeAll();cb();};
+}
+
+/* ══════════════════════════════════════
+   NAV
+══════════════════════════════════════ */
+function sw(id,el,pfx){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  $(   'view-'+id).classList.add('active');
+  document.querySelectorAll('.titem').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(s=>s.classList.remove('active'));
+  if(pfx==='tab'){
+    el.classList.add('active');
+    const si=$('si-'+id); if(si) si.classList.add('active');
+  } else {
+    el.classList.add('active');
+    const ti=$('tab-'+id); if(ti) ti.classList.add('active');
+  }
+  setDbar(id);
+  if(id==='history'){renderHist();updateStats();}
+  if(id==='ca')     {renderCA();}
+  if(id==='profile'){updBanner();}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ══════════════════════════════════════
+   PROFILE
+══════════════════════════════════════ */
+const PP=['dn','tel','email','name','siret','vtc','addr','veh','plate','iban','nextinv'];
+function saveProfile(){
+  const d={tva:gv('p-tva'),nextinv:gv('p-nextinv')||'1'};
+  PP.forEach(k=>d[k]=gv('p-'+k));
+  ls('vtcp',d); updBanner(); toast('Profil enregistré !');
+}
+function loadProfile(){
+  const d=gl('vtcp')||{};
+  PP.forEach(k=>sv('p-'+k,d[k]));
+  if(d.tva) $('p-tva').value=d.tva;
+  sv('p-nextinv',d.nextinv||'1');
+  updBanner();
+}
+function updBanner(){
+  const d=gl('vtcp')||{};
+  const n=d.name||'Mon entreprise';
+  const s=d.vtc?`Licence ${d.vtc}`:(d.tel||'Complétez votre profil');
+  ['bn-name','sf-name'].forEach(id=>$(id).textContent=n);
+  ['bn-sub','sf-sub'].forEach(id=>$(id).textContent=s);
+}
+function confWipe(){
+  showConfirm('⚠️ Réinitialiser','Toutes les données (courses, CA, profil) seront supprimées.',()=>{
+    localStorage.clear(); location.reload();
+  });
+}
+
+/* ══════════════════════════════════════
+   MAGIC PARSER — regex avancé
+══════════════════════════════════════ */
+function parseMagic(){
+  const raw = gv('magic-input');
+  if(!raw.trim()){toast('Collez un message d\'abord','err');return;}
+  const txt = raw;
+  const low = txt.toLowerCase();
+  let n=0;
+
+  /* ─ PRIX : 45€ | 45 € | 45,50€ | EUR 45 | prix: 45 | montant 45 | course 45 ─ */
+  const priceRx=[
+    /(?:prix|montant|course|tarif|total)[^\d]*(\d+[,.]?\d*)\s*€?/i,
+    /(\d+[,.]?\d*)\s*€/,
+    /€\s*(\d+[,.]?\d*)/,
+    /EUR\s*(\d+[,.]?\d*)/i,
+    /(\d+[,.]?\d*)\s*euros?/i
+  ];
+  for(const rx of priceRx){const m=txt.match(rx);if(m){sv('c-price',m[1].replace(',','.'));n++;break;}}
+
+  /* ─ DATE : 12/03, 12-03, 12.03, 12/03/2025, lundi 12 mars, demain, aujourd'hui ─ */
+  if(low.includes("aujourd'hui")||low.includes('aujd')){
+    const d=new Date(); $('c-date').valueAsDate=d; n++;
+  } else if(low.includes('demain')){
+    const d=new Date(); d.setDate(d.getDate()+1); $('c-date').valueAsDate=d; n++;
+  } else if(low.includes('après-demain')||low.includes('apres-demain')){
+    const d=new Date(); d.setDate(d.getDate()+2); $('c-date').valueAsDate=d; n++;
+  } else {
+    const mois={'jan':1,'fév':2,'fev':2,'mar':3,'avr':4,'mai':5,'juin':6,'juil':7,'aoû':8,'aou':8,'sep':9,'oct':10,'nov':11,'déc':12,'dec':12};
+    const frDate = txt.match(/(\d{1,2})\s+(?:(\w+))\s+(?:(\d{4}))?/);
+    if(frDate){
+      const mo = Object.entries(mois).find(([k])=>frDate[2].toLowerCase().startsWith(k));
+      if(mo){
+        const y=frDate[3]||new Date().getFullYear();
+        sv('c-date',`${y}-${pad(mo[1])}-${pad(frDate[1])}`); n++;
+      }
+    }
+    const numDate = txt.match(/(\d{1,2})[\/\-\.](\d{1,2})(?:[\/\-\.](\d{2,4}))?/);
+    if(!frDate?.length && numDate){
+      const d=numDate[1].padStart(2,'0'), mo=numDate[2].padStart(2,'0');
+      const y=numDate[3]?(numDate[3].length===2?'20'+numDate[3]:numDate[3]):new Date().getFullYear();
+      sv('c-date',`${y}-${mo}-${d}`); n++;
+    }
+  }
+
+  /* ─ HEURE : 14h30, 14:30, 14H00, 9h, à 14h30, pickup 8h ─ */
+  const timeM=txt.match(/(?:à|a|pickup|prise en charge|pec)?[\s:]*(\d{1,2})[h:H](\d{2})?(?!\d)/);
+  if(timeM){sv('c-time',pad(timeM[1])+':'+(timeM[2]||'00').padStart(2,'0'));n++;}
+
+  /* ─ NOM : M. Dupont | Mme Martin | Mr Smith | Client: Jean | Pour: Alice ─ */
+  const nameM=[
+    /(?:Mr\.?|Mme\.?|M\.?|Dr\.?|Mlle\.?)\s+([A-ZÀ-ÜA-Za-zà-ü]+(?:\s+[A-ZÀ-Üa-zà-ü]+)?)/,
+    /(?:client|pour|passager|pax|nom)[:\s]+([A-ZÀ-Üa-zà-ü]+(?:\s+[A-ZÀ-Üa-zà-ü]+)?)/i,
+  ];
+  for(const rx of nameM){const m=txt.match(rx);if(m){const parts=m[1].trim().split(/\s+/);sv('c-fn',parts[0]);if(parts[1])sv('c-ln',parts[1]);n++;break;}}
+
+  /* ─ TÉLÉPHONE : +33 6 00 00 00 00, 06.00.00.00.00, 0600000000 ─ */
+  const phoneM=txt.match(/(?:\+33|0033|0)[1-9][\s.\-]?(?:\d{2}[\s.\-]?){4}/);
+  if(phoneM){sv('c-tel',phoneM[0].trim());n++;}
+
+  /* ─ EMAIL ─ */
+  const emailM=txt.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
+  if(emailM){sv('c-email',emailM[0]);n++;}
+
+  /* ─ DÉPART : repère les mots-clés ─ */
+  const depRx=[
+    /(?:de|depuis|départ|prise en charge|pec|pick[ -]?up|from)[:\s]+([^\n,→➔\-–]+)/i,
+    /(?:aéroport|cdg|orly|roissy|beauvais|gare\s+\w+|terminal\s+\w+)/i
+  ];
+  for(const rx of depRx){const m=txt.match(rx);if(m){sv('c-from',m[1]?m[1].trim():m[0]);n++;break;}}
+
+  /* ─ ARRIVÉE : repère les mots-clés ─ */
+  const arrRx=[
+    /(?:à|vers|destination|arrivée|arrive|drop[ -]?off|to)[:\s]+([^\n,→➔\-–]+)/i,
+    /(?:→|➔|=>|->)\s*([^\n,]+)/
+  ];
+  for(const rx of arrRx){const m=txt.match(rx);if(m){sv('c-to',m[1].trim());n++;break;}}
+
+  /* ─ MODE PAIEMENT ─ */
+  const payKw={'espèces':1,'cash':1,'liquide':1,'cb':1,'carte':1,'virement':1,'lydia':1,'paypal':1,'vir':1};
+  const payM=Object.keys(payKw).find(k=>low.includes(k));
+  if(payM){sv('c-pay',payM.charAt(0).toUpperCase()+payM.slice(1));n++;}
+
+  /* ─ PASSAGERS ─ */
+  const paxM=txt.match(/(\d)\s*(?:pax|passager|pers\b|personne)/i);
+  if(paxM&&parseInt(paxM[1])>=1&&parseInt(paxM[1])<=7){$('c-pax').value=paxM[1];n++;}
+
+  toast(n>0?`${n} champ${n>1?'s':''} rempli${n>1?'s':''}. Vérifiez avant d'enregistrer.`:'Rien extrait — saisir manuellement','info');
+  if(n>0){sv('magic-input','');}
+}
+
+/* ══════════════════════════════════════
+   FORM : RESET / SAVE
+══════════════════════════════════════ */
+let editingId = null;
+
+function resetForm(){
+  ['c-fn','c-ln','c-tel','c-email','c-from','c-to','c-price','c-notes','c-pay','magic-input'].forEach(id=>sv(id,''));
+  $('c-date').valueAsDate=new Date();
+  $('c-time').value=pad(NOW.getHours())+':'+pad(NOW.getMinutes());
+  $('c-pax').value='1'; $('c-vtype').value='Berline';
+  editingId=null;
+  $('edit-banner').style.display='none';
+  $('save-btn').textContent='Enregistrer & générer le bon';
+}
+
+function cancelEdit(){ resetForm(); }
+
+function saveAndGen(){
+  const fn=gv('c-fn'), ln=gv('c-ln'), price=gv('c-price');
+  if(!fn&&!ln){toast('Nom du client requis','err');return;}
+  if(!price||parseFloat(price)<=0){toast('Prix invalide','err');return;}
+  const client=[fn,ln].filter(Boolean).join(' ');
+
+  let jobs = gl('vtcj')||[];
+
+  if(editingId){
+    // UPDATE existing
+    const idx = jobs.findIndex(j=>j.id===editingId);
+    if(idx>-1){
+      jobs[idx]={...jobs[idx],
+        client,fn,ln,phone:gv('c-tel'),email:gv('c-email'),
+        date:gv('c-date'),time:gv('c-time')||'Non précisé',
+        from:gv('c-from')||'Non précisé',to:gv('c-to')||'Non précisé',
+        pax:gv('c-pax')||'1',vtype:gv('c-vtype')||'Berline',
+        pay:gv('c-pay'),notes:gv('c-notes'),
+        price:fmtAmt(price),updatedAt:new Date().toISOString()
+      };
+    }
+    ls('vtcj',jobs);
+    toast('Course mise à jour !');
+    resetForm();
+    return;
+  }
+
+  const num = nextJobNum();
+  const job={
+    id:Date.now(), num, client, fn, ln,
+    phone:gv('c-tel'), email:gv('c-email'),
+    date:gv('c-date'), time:gv('c-time')||'Non précisé',
+    from:gv('c-from')||'Non précisé', to:gv('c-to')||'Non précisé',
+    pax:gv('c-pax')||'1', vtype:gv('c-vtype')||'Berline',
+    pay:gv('c-pay'), notes:gv('c-notes'),
+    price:fmtAmt(price), createdAt:new Date().toISOString()
+  };
+  jobs.push(job);
+  ls('vtcj',jobs);
+  resetForm();
+  toast('Course enregistrée !');
+  generatePDF(job,'BC');
+}
+
+/* ══════════════════════════════════════
+   HISTORY : STATS / RENDER
+══════════════════════════════════════ */
+function updateStats(){
+  const h=gl('vtcj')||[];
+  const tot=h.reduce((s,j)=>s+parseFloat(j.price||0),0);
+  const mn=new Date();
+  const mo=h.filter(j=>{const d=new Date(j.date);return d.getMonth()===mn.getMonth()&&d.getFullYear()===mn.getFullYear();});
+  const mca=mo.reduce((s,j)=>s+parseFloat(j.price||0),0);
+  const avg=h.length?tot/h.length:0;
+  $('stats-row').innerHTML=`
+    <div class="sbox"><div class="sval" style="color:var(--accent)">${h.length}</div><div class="slbl">Courses</div></div>
+    <div class="sbox"><div class="sval" style="color:var(--green)">${mca.toFixed(0)}€</div><div class="slbl">Ce mois</div></div>
+    <div class="sbox"><div class="sval" style="color:var(--txt2)">${avg.toFixed(0)}€</div><div class="slbl">Moyenne</div></div>`;
+}
+
+function renderHist(){
+  const list=$('hlist');
+  const q=(gv('srch')||'').toLowerCase();
+  let h=(gl('vtcj')||[]).slice().reverse();
+  if(q) h=h.filter(j=>
+    (j.client||'').toLowerCase().includes(q)||
+    (j.phone||'').toLowerCase().includes(q)||
+    (j.from||'').toLowerCase().includes(q)||
+    (j.to||'').toLowerCase().includes(q)||
+    (j.num?`#${j.num}`:'').includes(q)
+  );
+  if(!h.length){
+    list.innerHTML=`<div class="empty"><div class="ei">${q?'🔎':'📭'}</div><p>${q?'Aucun résultat.':'Aucune course enregistrée.'}</p></div>`;
+    return;
+  }
+  list.innerHTML=h.map(j=>{
+    const payTxt = j.pay ? `<span style="font-size:.62rem;color:var(--txt3);font-style:italic;">${j.pay}</span>` : '';
+    const modBadge = j.updatedAt ? `<span style="font-size:.58rem;color:var(--amber);background:var(--amd);padding:1px 6px;border-radius:4px;font-weight:600;">modifié</span>` : '';
+    return `<div class="hitem" id="hi-${j.id}">
+      <div class="htop" onclick="togDetail(${j.id})">
+        <div class="hleft">
+          <div class="hname">${j.client||'—'} ${modBadge}</div>
+          ${j.phone?`<div class="hphone">${j.phone}</div>`:''}
+          <div class="hmeta">
+            <span class="hdate">${fmtDate(j.date)} · ${j.time}</span>
+            ${payTxt}
+          </div>
+          <div class="hroute"><span>${(j.from||'').substring(0,22)}</span><span style="color:var(--txt3)">→</span><span>${(j.to||'').substring(0,22)}</span></div>
+        </div>
+        <div class="hright">
+          <div class="hprice">${j.price}€</div>
+          <div class="hnum">${j.num?`#${pad(j.num)}`:''}</div>
+        </div>
+      </div>
+      <!-- Detail accordeon -->
+      <div class="hdetail" id="det-${j.id}">
+        <button class="haccordion-btn" onclick="togAcc(${j.id},event)">
+          Voir toutes les informations <span class="acc-arrow" id="arr-${j.id}">▾</span>
+        </button>
+        <div id="acc-${j.id}" style="display:none;animation:fadeUp .2s ease;">
+          <div class="detail-grid">
+            <div class="dfield"><div class="dfield-lbl">Client</div><div class="dfield-val">${j.client||'—'}</div></div>
+            <div class="dfield"><div class="dfield-lbl">Téléphone</div><div class="dfield-val">${j.phone||'—'}</div></div>
+            <div class="dfield"><div class="dfield-lbl">Email</div><div class="dfield-val">${j.email||'—'}</div></div>
+            <div class="dfield"><div class="dfield-lbl">Date & Heure</div><div class="dfield-val">${fmtDate(j.date)} à ${j.time}</div></div>
+            <div class="dfield"><div class="dfield-lbl">Départ</div><div class="dfield-val">${j.from||'—'}</div></div>
+            <div class="dfield"><div class="dfield-lbl">Arrivée</div><div class="dfield-val">${j.to||'—'}</div></div>
+            <div class="dfield"><div class="dfield-lbl">Passagers</div><div class="dfield-val">${j.pax||1} pax · ${j.vtype||'Berline'}</div></div>
+            <div class="dfield"><div class="dfield-lbl">Mode règlement</div><div class="dfield-val">${j.pay||'Non renseigné'}</div></div>
+            ${j.notes?`<div class="dfield" style="grid-column:span 2"><div class="dfield-lbl">Notes</div><div class="dfield-val">${j.notes}</div></div>`:''}
+            <div class="dfield"><div class="dfield-lbl">Prix TTC</div><div class="dfield-val green">${j.price} €</div></div>
+            <div class="dfield"><div class="dfield-lbl">Référence</div><div class="dfield-val">${j.num?`BC-${pad(j.num)}`:'—'}</div></div>
+          </div>
+        </div>
+        <div class="hactions open">
+          <button class="btn btn-g btn-sm" style="flex:1" onclick="rePDF(${j.id},'BC')">📄 Bon</button>
+          <button class="btn btn-s btn-sm" style="flex:1" onclick="rePDF(${j.id},'FAC')">🧾 Facture</button>
+          <button class="btn btn-a btn-sm btn-ic" onclick="openEdit(${j.id})" title="Modifier">✏️</button>
+          <button class="btn btn-d btn-sm btn-ic" onclick="confDel(${j.id})" title="Supprimer">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function togDetail(id){
+  const det=$(`det-${id}`);
+  det.classList.toggle('open');
+}
+function togAcc(id,e){
+  e.stopPropagation();
+  const acc=$(`acc-${id}`), arr=$(`arr-${id}`);
+  const open=acc.style.display==='block';
+  acc.style.display=open?'none':'block';
+  arr.classList.toggle('open',!open);
+}
+
+/* ── EDIT ── */
+function openEdit(id){
+  const j=(gl('vtcj')||[]).find(j=>j.id===id);
+  if(!j) return;
+  $('edit-ref').textContent=j.num?`BC-${pad(j.num)}`:`#${id}`;
+  sv('e-fn',j.fn); sv('e-ln',j.ln); sv('e-tel',j.phone); sv('e-email',j.email);
+  sv('e-date',j.date); sv('e-time',j.time==='Non précisé'?'':j.time);
+  sv('e-from',j.from==='Non précisé'?'':j.from); sv('e-to',j.to==='Non précisé'?'':j.to);
+  $('e-pax').value=j.pax||'1'; $('e-vtype').value=j.vtype||'Berline';
+  sv('e-pay',j.pay); sv('e-notes',j.notes); sv('e-price',j.price);
+  $('ov-edit').classList.add('open');
+  $('ov-edit')._editId = id;
+}
+
+function saveEdit(){
+  const id = $('ov-edit')._editId;
+  let jobs = gl('vtcj')||[];
+  const idx = jobs.findIndex(j=>j.id===id);
+  if(idx<0){closeAll();return;}
+  const fn=gv('e-fn'), ln=gv('e-ln'), price=gv('e-price');
+  if(!fn&&!ln){toast('Nom requis','err');return;}
+  if(!price||parseFloat(price)<=0){toast('Prix invalide','err');return;}
+  jobs[idx]={...jobs[idx],
+    fn,ln,client:[fn,ln].filter(Boolean).join(' '),
+    phone:gv('e-tel'),email:gv('e-email'),
+    date:gv('e-date'),time:gv('e-time')||'Non précisé',
+    from:gv('e-from')||'Non précisé',to:gv('e-to')||'Non précisé',
+    pax:$('e-pax').value,vtype:$('e-vtype').value,
+    pay:gv('e-pay'),notes:gv('e-notes'),
+    price:fmtAmt(price),updatedAt:new Date().toISOString()
+  };
+  ls('vtcj',jobs);
+  closeAll(); renderHist(); updateStats();
+  toast('Course modifiée !');
+}
+
+/* ── INLINE EDIT (from create view) ── */
+function loadForEdit(id){
+  const j=(gl('vtcj')||[]).find(j=>j.id===id); if(!j) return;
+  editingId=id;
+  sv('c-fn',j.fn); sv('c-ln',j.ln); sv('c-tel',j.phone); sv('c-email',j.email);
+  sv('c-date',j.date); sv('c-time',j.time==='Non précisé'?'':j.time);
+  sv('c-from',j.from==='Non précisé'?'':j.from); sv('c-to',j.to==='Non précisé'?'':j.to);
+  $('c-pax').value=j.pax||'1'; $('c-vtype').value=j.vtype||'Berline';
+  sv('c-pay',j.pay); sv('c-notes',j.notes); sv('c-price',j.price);
+  $('edit-banner').style.display='block';
+  $('edit-banner-ref').textContent=j.num?`BC-${pad(j.num)}`:`Course #${id}`;
+  $('save-btn').textContent='💾 Mettre à jour la course';
+  sw('create',$('tab-create'),'tab');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── DELETE / CLEAR ── */
+function confDel(id){ showConfirm('Supprimer la course','Action irréversible.',()=>delJob(id)); }
+function delJob(id){ ls('vtcj',(gl('vtcj')||[]).filter(j=>j.id!==id)); renderHist(); updateStats(); toast('Course supprimée'); }
+function confClear(){ showConfirm('Tout effacer','L\'intégralité de l\'historique sera supprimée.',()=>{ localStorage.removeItem('vtcj'); renderHist(); updateStats(); toast('Historique effacé'); }); }
+function rePDF(id,type){ const j=(gl('vtcj')||[]).find(j=>j.id===id); if(j) generatePDF(j,type); }
+
+/* ══════════════════════════════════════
+   CA JOURNALIER
+══════════════════════════════════════ */
+let caDay = new Date(NOW); caDay.setHours(0,0,0,0);
+
+function caDateISO(d){ return d.toISOString().split('T')[0]; }
+function caFmtLabel(d){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.round((d-today)/86400000);
+  if(diff===0) return 'Aujourd\'hui';
+  if(diff===-1) return 'Hier';
+  if(diff===1) return 'Demain';
+  return d.toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'long'});
+}
+function caNavDay(dir){ caDay.setDate(caDay.getDate()+dir); renderCA(); }
+
+function renderCA(){
+  $('ca-date-lbl').textContent = caFmtLabel(caDay);
+  const iso = caDateISO(caDay);
+  const all = (gl('vtc_ca')||[]);
+  const day = all.filter(e=>e.date===iso);
+
+  // Summary
+  const rec = day.filter(e=>e.cat!=='charge').reduce((s,e)=>s+parseFloat(e.amt||0),0);
+  const chg = day.filter(e=>e.cat==='charge').reduce((s,e)=>s+parseFloat(e.amt||0),0);
+  const net = rec-chg;
+  $('ca-summary').innerHTML=`
+    <div class="sbox"><div class="sval" style="color:var(--green)">${rec.toFixed(2)}€</div><div class="slbl">Recettes</div></div>
+    <div class="sbox"><div class="sval" style="color:var(--red)">${chg.toFixed(2)}€</div><div class="slbl">Charges</div></div>
+    <div class="sbox"><div class="sval" style="color:${net>=0?'var(--accent)':'var(--red)'}">${net.toFixed(2)}€</div><div class="slbl">Net</div></div>`;
+
+  if(!day.length){
+    $('ca-list').innerHTML=`<div class="empty"><div class="ei">📊</div><p>Aucune entrée pour ce jour.</p></div>`;
+    return;
+  }
+
+  const catTag={course:'<span class="ca-tag ca-tag-c">Course</span>',autre:'<span class="ca-tag ca-tag-s">Recette</span>',charge:'<span class="ca-tag ca-tag-r">Charge</span>'};
+  $('ca-list').innerHTML=day.map((e,i)=>`
+    <div class="ca-entry">
+      <div class="ca-row">
+        <div class="ca-entry-left">
+          <div class="ca-etime">${e.time||'--:--'}</div>
+          <div class="ca-edesc">${e.desc||'—'}</div>
+        </div>
+        <div class="ca-entry-right">
+          ${catTag[e.cat]||''}
+          <div class="ca-eamt" style="${e.cat==='charge'?'color:var(--red)':''}">${e.cat==='charge'?'-':''}${parseFloat(e.amt).toFixed(2)}€</div>
+          <button class="btn btn-a btn-sm btn-ic" onclick="editCAEntry(${e.id})" title="Modifier">✏️</button>
+          <button class="btn btn-d btn-sm btn-ic" onclick="delCAEntry(${e.id})" title="Supprimer">🗑</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openCAModal(editId){
+  const isEdit = !!editId;
+  $('ca-modal-title').textContent = isEdit ? '✏️ Modifier l\'entrée' : '➕ Ajouter une entrée';
+  $('ca-save-btn').textContent = isEdit ? '💾 Sauvegarder' : 'Enregistrer';
+  if(!isEdit){
+    sv('ca-date', caDateISO(caDay));
+    sv('ca-time', pad(NOW.getHours())+':'+pad(NOW.getMinutes()));
+    sv('ca-desc',''); sv('ca-amt','');
+    $('ca-cat').value='course';
+  }
+  $('ov-ca')._editId = editId||null;
+  $('ov-ca').classList.add('open');
+}
+
+function editCAEntry(id){
+  const e=(gl('vtc_ca')||[]).find(e=>e.id===id); if(!e) return;
+  openCAModal(id);
+  sv('ca-date',e.date); sv('ca-time',e.time); sv('ca-desc',e.desc); sv('ca-amt',e.amt);
+  $('ca-cat').value=e.cat||'course';
+}
+
+function saveCAEntry(){
+  const amt=gv('ca-amt');
+  if(!amt||parseFloat(amt)<=0){toast('Montant invalide','err');return;}
+  const editId=$('ov-ca')._editId;
+  let all=gl('vtc_ca')||[];
+  const entry={
+    id:editId||(Date.now()),
+    date:gv('ca-date')||caDateISO(caDay),
+    time:gv('ca-time'),
+    desc:gv('ca-desc')||'Course VTC',
+    cat:$('ca-cat').value,
+    amt:fmtAmt(amt)
+  };
+  if(editId){ all=all.map(e=>e.id===editId?entry:e); toast('Entrée modifiée !'); }
+  else { all.push(entry); toast('Entrée enregistrée !'); }
+  ls('vtc_ca',all); closeAll(); renderCA();
+}
+
+function delCAEntry(id){
+  showConfirm('Supprimer l\'entrée','Action irréversible.',()=>{
+    ls('vtc_ca',(gl('vtc_ca')||[]).filter(e=>e.id!==id));
+    renderCA(); toast('Entrée supprimée');
+  });
+}
+
+/* ── EXPORT CA CSV ── */
+function exportCACSV(){
+  const all=gl('vtc_ca')||[];
+  if(!all.length){toast('Aucune donnée à exporter','err');return;}
+  const rows=[['Date','Heure','Description','Catégorie','Montant €'],...all.map(e=>[e.date,e.time||'',`"${e.desc}"`,e.cat,e.cat==='charge'?`-${e.amt}`:e.amt])];
+  const csv=rows.map(r=>r.join(';')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download=`CA_VTC_${caDateISO(new Date())}.csv`;
+  a.click(); toast('Export CSV téléchargé !');
+}
+
+/* ── EXPORT CA PDF ── */
+function exportCAPDF(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  const p=gl('vtcp')||{};
+  const all=(gl('vtc_ca')||[]).sort((a,b)=>a.date.localeCompare(b.date));
+  const [ar,ag,ab]=[79,142,247];
+
+  doc.setFillColor(13,14,20); doc.rect(0,0,210,38,'F');
+  doc.setFillColor(ar,ag,ab); doc.rect(0,0,5,38,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont(undefined,'bold');
+  doc.text(p.name||'TRANSPORT VTC',14,16);
+  doc.setFontSize(8); doc.setFont(undefined,'normal'); doc.setTextColor(160,163,178);
+  doc.text(`SIRET: ${p.siret||'—'}  ·  Licence: ${p.vtc||'—'}`,14,24);
+  doc.setTextColor(ar,ag,ab); doc.setFontSize(12); doc.setFont(undefined,'bold');
+  doc.text('RAPPORT CA',195,16,{align:'right'});
+  doc.setFontSize(7); doc.setFont(undefined,'normal'); doc.setTextColor(160,163,178);
+  doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`,195,24,{align:'right'});
+
+  const rec=all.filter(e=>e.cat!=='charge').reduce((s,e)=>s+parseFloat(e.amt),0);
+  const chg=all.filter(e=>e.cat==='charge').reduce((s,e)=>s+parseFloat(e.amt),0);
+
+  doc.autoTable({
+    startY:50,
+    head:[['Date','Heure','Description','Catégorie','Montant TTC']],
+    body:all.map(e=>[e.date?fmtDate(e.date):'—',e.time||'—',e.desc,e.cat,`${e.cat==='charge'?'-':''}${parseFloat(e.amt).toFixed(2)} €`]),
+    theme:'striped',
+    headStyles:{fillColor:[ar,ag,ab],textColor:255,fontStyle:'bold'},
+    styles:{fontSize:9,cellPadding:5},
+    columnStyles:{4:{halign:'right',fontStyle:'bold'}}
+  });
+
+  const fy=doc.lastAutoTable.finalY+12;
+  doc.setFontSize(10); doc.setTextColor(0,0,0);
+  doc.text(`Total recettes : ${rec.toFixed(2)} €`,195,fy,{align:'right'});
+  doc.text(`Total charges  : ${chg.toFixed(2)} €`,195,fy+7,{align:'right'});
+  doc.setFillColor(ar,ag,ab); doc.roundedRect(120,fy+10,75,13,3,3,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(11); doc.setFont(undefined,'bold');
+  doc.text(`NET : ${(rec-chg).toFixed(2)} €`,193,fy+18.5,{align:'right'});
+
+  doc.save(`CA_VTC_${new Date().toISOString().split('T')[0]}.pdf`);
+  toast('Export PDF téléchargé !');
+}
+
+/* ══════════════════════════════════════
+   PDF ENGINE
+══════════════════════════════════════ */
+async function generatePDF(job,type){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  const p=gl('vtcp')||{};
+  const isFac=type==='FAC';
+  const [ar,ag,ab]=isFac?[45,212,160]:[79,142,247];
+  const invNum = isFac ? nextInvNum() : (job.num||'');
+  const ref = isFac ? `FAC-${String(invNum).padStart(5,'0')}` : `BC-${job.num?pad(job.num):String(job.id).slice(-5)}`;
+
+  /* ─ Header ─ */
+  doc.setFillColor(13,14,20); doc.rect(0,0,210,52,'F');
+  doc.setFillColor(ar,ag,ab); doc.rect(0,0,5,52,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(15); doc.setFont(undefined,'bold');
+  doc.text(p.name||'TRANSPORT VTC',14,19);
+  doc.setFontSize(7.5); doc.setFont(undefined,'normal'); doc.setTextColor(140,143,168);
+  const infoLines=[
+    `SIRET: ${p.siret||'—'}  ·  Licence VTC: ${p.vtc||'—'}`,
+    [p.veh,p.plate].filter(Boolean).join(' · '),
+    p.addr||'',
+    [p.tel&&`Tél: ${p.tel}`,p.email].filter(Boolean).join('  ·  ')
+  ].filter(Boolean);
+  infoLines.forEach((l,i)=>doc.text(l,14,28+i*6));
+  doc.setTextColor(ar,ag,ab); doc.setFontSize(12); doc.setFont(undefined,'bold');
+  doc.text(isFac?'FACTURE':'BON DE COMMANDE',195,19,{align:'right'});
+  doc.setFontSize(7.5); doc.setFont(undefined,'normal'); doc.setTextColor(140,143,168);
+  doc.text(`Réf: ${ref}`,195,28,{align:'right'});
+  doc.text(`Émis le: ${new Date().toLocaleDateString('fr-FR')}`,195,34,{align:'right'});
+
+  /* ─ Client ─ */
+  doc.setTextColor(0,0,0); doc.setFontSize(9); doc.setFont(undefined,'normal');
+  doc.text('Adressé à :',14,66);
+  doc.setFontSize(11.5); doc.setFont(undefined,'bold');
+  doc.text(job.client||'—',14,73);
+  doc.setFont(undefined,'normal'); doc.setFontSize(8); doc.setTextColor(80,80,80);
+  let cy=80;
+  if(job.phone){doc.text(`Tél : ${job.phone}`,14,cy);cy+=6;}
+  if(job.email){doc.text(`Email : ${job.email}`,14,cy);cy+=6;}
+
+  /* ─ Table ─ */
+  const rows=[[
+    isFac?'Prestation transport VTC':'Réservation préalable VTC',
+    `${fmtDate(job.date)}\nà ${job.time}`,
+    `Départ: ${job.from}\nArrivée: ${job.to}`,
+    `${job.pax||1} pax · ${job.vtype||'Berline'}${job.pay?'\n'+job.pay:''}`,
+    `${job.price} €`
+  ]];
+  doc.autoTable({
+    startY:cy+8,
+    head:[['Désignation','Date / Heure','Trajet','Détails','Montant TTC']],
+    body:rows, theme:'striped',
+    headStyles:{fillColor:[ar,ag,ab],textColor:isFac?0:255,fontStyle:'bold'},
+    styles:{fontSize:9,cellPadding:5},
+    columnStyles:{4:{halign:'right',fontStyle:'bold'}}
+  });
+
+  /* ─ Totaux ─ */
+  const fy=doc.lastAutoTable.finalY+16;
+  if(isFac){
+    const tvaN=parseFloat(p.tva||'10')/100;
+    const prN=parseFloat(job.price);
+    const ht=prN/(1+tvaN), tva=prN-ht;
+    doc.setFontSize(9); doc.setTextColor(80,80,80);
+    doc.text(`Total HT : ${ht.toFixed(2)} €`,195,fy,{align:'right'});
+    doc.text(`TVA (${Math.round(tvaN*100)}%) : ${tva.toFixed(2)} €`,195,fy+7,{align:'right'});
+    doc.setFillColor(ar,ag,ab); doc.roundedRect(120,fy+11,75,13,3,3,'F');
+    doc.setTextColor(0,0,0); doc.setFontSize(11); doc.setFont(undefined,'bold');
+    doc.text(`TOTAL TTC : ${prN.toFixed(2)} €`,193,fy+19.5,{align:'right'});
+    doc.setFont(undefined,'normal'); doc.setFontSize(7.5); doc.setTextColor(110,110,110);
+    doc.text(`Règlement par virement : IBAN ${p.iban||'Non renseigné'}`,14,fy+32);
+    doc.text(`Pénalités de retard : taux légal en vigueur + indemnité forfaitaire de 40 €.`,14,fy+38);
+    if(job.notes){doc.setFont(undefined,'italic');doc.text(`Notes : ${job.notes}`,14,fy+46);}
+  } else {
+    doc.setFontSize(7); doc.setTextColor(130,130,130); doc.setFont(undefined,'italic');
+    doc.text(`Art. L.3122-9 Code des transports — Ce document atteste d'une réservation préalable.`,14,fy+14);
+    if(job.pay){doc.text(`Mode de règlement : ${job.pay}`,14,fy+20);}
+    if(job.notes){doc.text(`Notes : ${job.notes}`,14,fy+26);}
+  }
+
+  /* ─ Footer ─ */
+  doc.setFontSize(6); doc.setTextColor(180,180,180); doc.setFont(undefined,'normal');
+  doc.text(`Document généré par CabbyDesk · ${new Date().toLocaleString('fr-FR')}`,105,290,{align:'center'});
+
+  const fname=`${ref}_${(job.client||'client').replace(/\s+/g,'_')}.pdf`;
+  const blob=doc.output('blob');
+  if(navigator.canShare){
+    try{await navigator.share({files:[new File([blob],fname,{type:'application/pdf'})],title:fname,text:`Voici votre ${isFac?'facture':'bon de commande'}.`});}
+    catch(e){if(e.name!=='AbortError')doc.save(fname);}
+  } else { doc.save(fname); }
+}
+
+/* ══════════════════════════════════════
+   BOOT
+══════════════════════════════════════ */
+window.onload=()=>{
+  loadProfile();
+  $('c-date').valueAsDate=new Date();
+  $('c-time').value=pad(NOW.getHours())+':'+pad(NOW.getMinutes());
+  $('ca-date').valueAsDate=new Date();
+  $('ca-time').value=pad(NOW.getHours())+':'+pad(NOW.getMinutes());
+  $('ca-cat').addEventListener('change',()=>{
+    $('ca-pfx').textContent=$('ca-cat').value==='charge'?'−':'+';
+  });
+
+  /* ══ SERVICE WORKER (offline PWA) ══
+     On génère le SW dynamiquement et l'enregistre via blob URL.
+     Fonctionne sur Netlify/GitHub Pages — pas besoin de fichier séparé.
+  ══ */
+  if('serviceWorker' in navigator){
+    const swCode=`
+const CACHE='cabbydesk-v1';
+const URLS=['/'];
+self.addEventListener('install',e=>{
+  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(URLS)).then(()=>self.skipWaiting()));
+});
+self.addEventListener('activate',e=>{
+  e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));
+});
+self.addEventListener('fetch',e=>{
+  e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{
+    if(!res||res.status!==200||res.type==='opaque') return res;
+    const clone=res.clone();
+    caches.open(CACHE).then(c=>c.put(e.request,clone));
+    return res;
+  }).catch(()=>caches.match('/'))));
+});`;
+    const swBlob=new Blob([swCode],{type:'application/javascript'});
+    const swUrl=URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swUrl,{scope:'/'})
+      .then(()=>console.log('[CabbyDesk] SW enregistré ✓'))
+      .catch(e=>console.warn('[CabbyDesk] SW non supporté dans cet environnement',e));
+  }
+
+  /* ══ SYNC THEME COLOR META ══ */
+  function syncThemeColor(){
+    const meta=document.getElementById('theme-color-meta');
+    if(meta) meta.setAttribute('content', darkMode?'#0B0C10':'#F2F3F7');
+  }
+  // Patch toggleTheme pour syncer la meta
+  const _orig=window.toggleTheme;
+  window.toggleTheme=function(){ _orig(); syncThemeColor(); };
+  syncThemeColor();
+
+  /* ══ INSTALL PROMPT (Android) ══ */
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt',e=>{
+    e.preventDefault(); deferredPrompt=e;
+    // On pourrait afficher un bouton "Installer" ici
+  });
+};
+</script>
+</body>
+</html>
